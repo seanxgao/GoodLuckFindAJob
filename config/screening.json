@@ -1,0 +1,10 @@
+{
+  "match_threshold": 70,
+  "models": {
+    "screening": "gpt-4o-mini"
+  },
+  "temperatures": {
+    "screening": 0.0
+  },
+  "max_description_length": 4000
+}

@@ -1,0 +1,29 @@
+You are a job description parser.
+TASK: Extract BOTH metadata AND structured details from the raw job description text below.
+
+OUTPUT FORMAT: JSON only.
+
+{
+  "job_title": "String (Exact title from JD)",
+  "company": "String (Company name, or 'Unknown')",
+  "location": "String (City, State, or 'Unknown')",
+  "is_remote": Boolean,
+  "job_url": "String (URL if found in text, else empty string)",
+  "description": "String (The original description text, cleaned up if necessary)",
+  
+  "technical_stack": "String (Comma-separated list of technologies, tools, languages)",
+  "key_responsibilities": "String (Pipe | separated list of key duties. Keep detailed!)",
+  "required_experience": "String (Years, degree, specific domain knowledge)",
+  "success_metrics": "String (KPIs, performance goals, or 'N/A')",
+  "salary_range": "String (e.g. '$150k - $200k' or 'N/A')",
+  "salary_is_estimated": Boolean
+}
+
+RULES:
+1. Extract metadata accurately.
+2. For RESPONSIBILITIES: Do NOT summarize too much. Keep specific project details. Use '|' to separate distinct points.
+3. For TECH STACK: List all relevant tech.
+4. For SALARY: If not present, set salary_is_estimated to true.
+
+RAW JOB DESCRIPTION:
+

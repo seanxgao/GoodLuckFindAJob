@@ -1,0 +1,28 @@
+{
+  "locations": {
+    "cities": [
+      "Seattle, WA",
+      "San Francisco, CA",
+      "San Jose, CA",
+      "New York, NY",
+      "Austin, TX",
+      "Boston, MA"
+    ],
+    "remote": [
+      "Remote",
+      "United States"
+    ]
+  },
+  "search_terms": [
+    "software engineer (\"new grad\" OR junior OR entry OR \"0-3 years\")",
+    "machine learning engineer (\"new grad\" OR junior OR entry)",
+    "backend engineer (\"new grad\" OR junior OR entry)"
+  ],
+  "scraper": {
+    "results_per_city": 200,
+    "days_old": 1,
+    "site_name": ["indeed"],
+    "description_format": "markdown",
+    "verbose": 1
+  }
+}

@@ -1,0 +1,125 @@
+# ==========================================
+# Personal Information & Sensitive Data
+# ==========================================
+
+# Personal experience notes and profiles
+info/*
+!info/README.md
+
+# Personal job search preferences
+config/search.json
+
+# Personal resume configuration
+config/resume.json
+
+# Personal resume template
+JDConverter/resume.tex
+
+# Personal prompt customizations
+config/prompts/converter/patch4whispMin.txt
+
+# Personal job tracking data
+data/daily/job_statuses.json
+data/daily/resume_versions.json
+data/jobs_master.csv
+
+# Generated resumes (contains personal info)
+generated_CV/
+!generated_CV/.gitkeep
+
+# API keys and credentials
+.env
+.env.local
+*.key
+*.pem
+credentials.json
+
+# Personal Claude Code settings
+.claude/settings.local.json
+
+# ==========================================
+# Python
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ppl2offer/
+*.log
+*.pyc
+
+# Virtual environments
+.venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ==========================================
+# Node.js
+# ==========================================
+node_modules/
+.npm
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# IDEs & Editors
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# ==========================================
+# Operating System
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ==========================================
+# Build Artifacts
+# ==========================================
+dist/
+build/
+*.egg-info/
+*.egg
+
+# LaTeX build files
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.out
+*.log
+*.toc
+
+# ==========================================
+# Temporary Files
+# ==========================================
+*.tmp
+.tmp/
+temp/
+tmp/
+
+# ==========================================
+# Testing
+# ==========================================
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/

@@ -1,0 +1,53 @@
+{
+  "candidate_name": {
+    "first_name": "John",
+    "last_name": "Doe"
+  },
+  "models": {
+    "jd_filter": "gpt-4o-mini",
+    "facts_filter": "gpt-4o-mini",
+    "skills": "gpt-5.1",
+    "content": "gpt-5.1",
+    "latex": "gpt-4o-mini"
+  },
+  "temperatures": {
+    "jd_filter": 0.1,
+    "facts_filter": 0.1,
+    "skills": 0.7,
+    "content": 0.4,
+    "latex": 0.2
+  },
+  "max_tokens": {
+    "jd_filter": 1000,
+    "facts_filter": 600,
+    "content": 600,
+    "latex": 600
+  },
+  "experience_sections": {
+    "company1": {
+      "file": "company1_notes.md",
+      "header": "Company Name 1 | Job Title 1",
+      "marker": "%%COMPANY1_BULLETS_BLOCK%%"
+    },
+    "company2": {
+      "file": "company2_notes.md",
+      "header": "Company Name 2 | Job Title 2",
+      "marker": "%%COMPANY2_BULLETS_BLOCK%%"
+    },
+    "project1": {
+      "file": "project1_notes.md",
+      "header": "Project Name 1 — Brief Description",
+      "marker": "%%PROJECT1_BULLETS_BLOCK%%"
+    },
+    "project2": {
+      "file": "project2_notes.md",
+      "header": "Project Name 2 — Brief Description",
+      "marker": "%%PROJECT2_BULLETS_BLOCK%%"
+    },
+    "project3": {
+      "file": "project3_notes.md",
+      "header": "Project Name 3 — Brief Description",
+      "marker": "%%PROJECT3_BULLETS_BLOCK%%"
+    }
+  }
+}
