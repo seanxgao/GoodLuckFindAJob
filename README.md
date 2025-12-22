@@ -397,20 +397,3 @@ All AI prompts are stored in `config/prompts/` as text files. You can customize 
 ## Contributing
 
 Feel free to customize this system for your needs! The prompt-driven architecture makes it easy to adapt to different job search strategies.
-
-## Before Sharing
-
-**IMPORTANT**: Before sharing this project or pushing to GitHub, see `BEFORE_SHARING.md` for a comprehensive checklist to ensure no personal information is leaked.
-
-Quick check:
-```bash
-# Verify personal files are ignored
-git status
-
-# Review what will be committed
-git add -n .
-```
-
-## License
-
-MIT License - feel free to use and modify for your job search!

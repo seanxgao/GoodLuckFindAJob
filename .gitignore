@@ -21,7 +21,9 @@ config/prompts/converter/patch4whispMin.txt
 # Personal job tracking data
 data/daily/job_statuses.json
 data/daily/resume_versions.json
+data/daily/good_jobs.csv
 data/jobs_master.csv
+!data/daily/.gitkeep
 
 # Generated resumes (contains personal info)
 generated_CV/
