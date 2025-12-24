@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse, FileResponse
-from typing import List
+from typing import List, Dict, Any
 import json
 import shutil
 from pathlib import Path
+from datetime import datetime
 from app.models import Job, JobUpdate, JobStatus, ResumeGenerationResult
 from app.repository import JobRepository
 from app.services.converter import generate_resume_for_job_stream, generate_resume_for_job, generate_cover_letter
@@ -12,6 +13,10 @@ from pydantic import BaseModel
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 repository = JobRepository()
+
+# Path to stats file
+PROJECT_ROOT = Path(__file__).resolve().parents[4]
+STATS_FILE = PROJECT_ROOT / "data" / "scrape_stats.json"
 
 class ManualJobRequest(BaseModel):
     title: str
@@ -332,3 +337,72 @@ async def open_folder(request: OpenFolderRequest):
         return {"status": "opened", "path": str(folder)}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to open folder: {e}")
+
+
+@router.get("/stats/scraping")
+async def get_scraping_stats() -> Dict[str, Any]:
+    """Get scraping statistics including fetch history and screening results"""
+    try:
+        # Try to load stats file
+        if not STATS_FILE.exists():
+            # Return default stats if file doesn't exist yet
+            return {
+                "last_fetch_time": None,
+                "total_fetched": 0,
+                "total_passed_screening": 0,
+                "total_visa_blocked": 0,
+                "total_senior_blocked": 0,
+                "total_match_failed": 0,
+                "applied_count": 0,
+                "pass_rate": 0.0
+            }
+
+        with open(STATS_FILE, "r", encoding="utf-8") as f:
+            stats = json.load(f)
+
+        # Count applied jobs from statuses
+        applied_count = 0
+        try:
+            statuses_file = PROJECT_ROOT / "offerClick" / "backend" / "data" / "statuses.json"
+            if statuses_file.exists():
+                with open(statuses_file, "r", encoding="utf-8") as f:
+                    statuses = json.load(f)
+                    applied_count = sum(1 for status in statuses.values() if status == "applied")
+        except Exception as e:
+            print(f"Warning: Could not count applied jobs: {e}")
+
+        # Calculate pass rate
+        total_screened = (
+            stats.get('total_visa_blocked', 0) +
+            stats.get('total_senior_blocked', 0) +
+            stats.get('total_match_failed', 0) +
+            stats.get('total_passed_screening', 0)
+        )
+        pass_rate = (stats.get('total_passed_screening', 0) / total_screened * 100) if total_screened > 0 else 0.0
+
+        # Format last fetch time if it exists
+        last_fetch = stats.get("last_fetch_time")
+        if last_fetch:
+            try:
+                # Parse and format for display
+                dt = datetime.fromisoformat(last_fetch)
+                last_fetch = dt.strftime("%Y-%m-%d %H:%M")
+            except:
+                pass
+
+        return {
+            "last_fetch_time": last_fetch,
+            "total_fetched": stats.get("total_fetched", 0),
+            "total_passed_screening": stats.get("total_passed_screening", 0),
+            "total_visa_blocked": stats.get("total_visa_blocked", 0),
+            "total_senior_blocked": stats.get("total_senior_blocked", 0),
+            "total_match_failed": stats.get("total_match_failed", 0),
+            "applied_count": applied_count,
+            "pass_rate": round(pass_rate, 1)
+        }
+
+    except Exception as e:
+        print(f"[ERROR] Failed to load scraping stats: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Failed to load stats: {str(e)}")

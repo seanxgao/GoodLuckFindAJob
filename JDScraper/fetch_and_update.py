@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pandas as pd
 from jobspy import scrape_jobs
+from stats_tracker import update_fetch_stats, get_days_since_last_fetch, print_stats_summary
 
 # ================== Configuration ==================
 
@@ -231,18 +232,35 @@ def main():
         'days',
         type=int,
         nargs='?',
-        default=1,
-        help='Search for jobs within the specified number of days (default: 1, searches within 24*1 hours)'
+        default=None,
+        help='Search for jobs within the specified number of days. If not provided, automatically calculates from last fetch (capped at 14 days, defaults to 1 if never fetched before)'
     )
     args = parser.parse_args()
+
+    # Determine days to fetch
+    if args.days is None:
+        # Auto-calculate from last fetch time
+        calculated_days = get_days_since_last_fetch(max_days=14)
+        if calculated_days is None:
+            # First time running - default to 1 day
+            days_to_fetch = 1
+            print("[*] First fetch detected. Defaulting to 1 day of job postings.")
+        else:
+            days_to_fetch = calculated_days
+            print(f"[*] Auto-calculated fetch period: {days_to_fetch} days (since last fetch)")
+    else:
+        days_to_fetch = args.days
+        print(f"[*] Manual fetch period specified: {days_to_fetch} days")
 
     # Ensure data directories exist
     DATA_DIR.mkdir(exist_ok=True)
     DAILY_DIR.mkdir(parents=True, exist_ok=True)
 
-    df_raw = fetch_jobs_multi_city(days=args.days)
+    df_raw = fetch_jobs_multi_city(days=days_to_fetch)
     if df_raw.empty:
         print("[*] Nothing fetched, exiting.")
+        # Still update stats to record the fetch attempt
+        update_fetch_stats(0)
         return
 
     today_str = datetime.now().strftime("%Y-%m-%d")
@@ -261,6 +279,10 @@ def main():
         save_master(df_new)
         print(f"[+] Saved {len(df_new)} new jobs to {daily_path}")
         print(f"[+] Initialized master with {len(df_new)} jobs.")
+
+        # Update stats
+        update_fetch_stats(len(df_new))
+        print_stats_summary()
         return
 
     # Subsequent runs: deduplicate against master, keep only truly new jobs
@@ -269,6 +291,8 @@ def main():
 
     if df_new.empty:
         print("[*] No truly NEW jobs found today (all already in master).")
+        # Still update stats to record the fetch attempt
+        update_fetch_stats(0)
         return
 
     # Save today's new jobs
@@ -296,6 +320,10 @@ def main():
 
     save_master(df_all)
     print(f"[+] Updated master to {len(df_all)} total unique jobs.")
+
+    # Update stats
+    update_fetch_stats(len(df_new))
+    print_stats_summary()
 
 
 if __name__ == "__main__":

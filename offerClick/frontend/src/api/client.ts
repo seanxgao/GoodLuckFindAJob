@@ -223,5 +223,19 @@ export const jobsApi = {
     const response = await apiClient.post('/jobs/manual-simple', { jd_text });
     return response.data;
   },
+
+  getScrapingStats: async (): Promise<{
+    last_fetch_time: string | null;
+    total_fetched: number;
+    total_passed_screening: number;
+    total_visa_blocked: number;
+    total_senior_blocked: number;
+    total_match_failed: number;
+    applied_count: number;
+    pass_rate: number;
+  }> => {
+    const response = await apiClient.get('/jobs/stats/scraping');
+    return response.data;
+  },
 };
 

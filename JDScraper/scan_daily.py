@@ -3,7 +3,8 @@ import sys
 import json
 import pandas as pd
 from pathlib import Path
-from screener import quick_senior_keyword_check, run_combined_visa_senior_screener, run_match_screener, extract_structured_jd_info
+from screener import quick_senior_keyword_check, quick_visa_keyword_check, run_combined_visa_senior_screener, run_match_screener, extract_structured_jd_info
+from stats_tracker import update_screening_stats, print_stats_summary
 
 # Load screening configuration
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -93,7 +94,7 @@ def scan_jobs():
     base_dir = Path(__file__).resolve().parent
     daily_dir = base_dir.parent / "data" / "daily"
     good_jobs_path = daily_dir / "good_jobs.csv"
-    
+
     # Ensure daily directory exists
     if not daily_dir.exists():
         print(f"Error: Daily directory not found at {daily_dir}")
@@ -101,9 +102,9 @@ def scan_jobs():
 
     # Get list of job files (exclude good_jobs.csv itself if it matches)
     job_files = [f for f in daily_dir.glob("jobs_*.csv") if f.name != "good_jobs.csv" and f.name != "jobs_master.csv"]
-    
+
     print(f"Found {len(job_files)} daily job files to scan.")
-    
+
     # Load already processed URLs from good_jobs.csv to avoid duplicates
     processed_urls = set()
     if good_jobs_path.exists():
@@ -113,8 +114,14 @@ def scan_jobs():
                 processed_urls = set(df_existing["JOB_URL"].dropna())
         except Exception as e:
             print(f"Warning: Could not read existing good_jobs.csv: {e}")
-            
+
     print(f"Already {len(processed_urls)} jobs in good_jobs.csv (will skip these).")
+
+    # Statistics counters
+    stats_visa_blocked = 0
+    stats_senior_blocked = 0
+    stats_match_failed = 0
+    stats_passed = 0
     
     for csv_file in job_files:
         print(f"\nProcessing file: {csv_file.name}")
@@ -144,26 +151,35 @@ def scan_jobs():
             print(f"[{index+1}/{total_rows}] Screening: {title[:50]}...", end="", flush=True)
             
             try:
-                # 0. Quick keyword check (fast, before LLM call)
+                # 0. Quick keyword checks (fast, before LLM calls)
                 if quick_senior_keyword_check(title):
                     print(f" -> Quick Senior REJECT")
+                    stats_senior_blocked += 1
                     continue
-                
+
+                if quick_visa_keyword_check(description):
+                    print(f" -> Quick Visa REJECT")
+                    stats_visa_blocked += 1
+                    continue
+
                 # 1. Combined Visa & Senior Screen (single API call)
                 visa_result, visa_reason, senior_result, senior_reason = run_combined_visa_senior_screener(description)
                 if senior_result == "SENIOR":
                     print(f" -> Senior REJECT")
+                    stats_senior_blocked += 1
                     continue
                 if visa_result != "ACCEPT":
                     print(f" -> Visa REJECT")
+                    stats_visa_blocked += 1
                     continue
-                    
+
                 # 3. Match Screen
                 match_output = run_match_screener(description)
                 is_pass, overall_rating = parse_match_result(match_output)
-                
+
                 if is_pass:
                     print(f" -> {overall_rating}! Added.")
+                    stats_passed += 1
 
                     # Extract structured JD information
                     print(f"    Extracting structured info...", end="", flush=True)
@@ -204,11 +220,28 @@ def scan_jobs():
                     processed_urls.add(url)
                 else:
                     print(f" -> Match FAIL ({overall_rating})")
+                    stats_match_failed += 1
             except Exception as e:
                 print(f" -> Error during screening: {e}")
                 continue
 
     print("\nDone scanning all files.")
+
+    # Update statistics
+    if any([stats_visa_blocked, stats_senior_blocked, stats_match_failed, stats_passed]):
+        print(f"\nScreening Results:")
+        print(f"  Visa Blocked: {stats_visa_blocked}")
+        print(f"  Senior Blocked: {stats_senior_blocked}")
+        print(f"  Match Failed: {stats_match_failed}")
+        print(f"  Passed: {stats_passed}")
+
+        update_screening_stats(
+            visa_blocked=stats_visa_blocked,
+            senior_blocked=stats_senior_blocked,
+            match_failed=stats_match_failed,
+            passed=stats_passed
+        )
+        print_stats_summary()
 
 if __name__ == "__main__":
     scan_jobs()

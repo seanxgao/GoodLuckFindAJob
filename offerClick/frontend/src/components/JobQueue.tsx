@@ -3,6 +3,7 @@ import type { Job } from '../api/client';
 import { useJobStore } from '../stores/jobStore';
 import { MapPin, Star, CheckCircle, XCircle, ChevronDown, ChevronRight, Building, Plus, AlertTriangle } from 'lucide-react';
 import { AddJobModal } from './AddJobModal';
+import { ScrapingStats } from './ScrapingStats';
 
 interface JobQueueProps {
   jobs: Job[];
@@ -260,14 +261,14 @@ export function JobQueue({ jobs, onSelectJob }: JobQueueProps) {
                 if ('id' in item) {
                   return renderJobItem(item as Job);
                 }
-                
+
                 // It's a group
                 const group = item as CompanyGroup;
                 const isExpanded = expandedCompanies.has(group.company);
-                
+
                 return (
                   <div key={`group-${group.company}-${index}`} className="border-b border-gray-200 bg-white">
-                    <button 
+                    <button
                       onClick={() => toggleCompany(group.company)}
                       className="sticky top-0 z-10 w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 transition-colors shadow-sm"
                     >
@@ -280,7 +281,7 @@ export function JobQueue({ jobs, onSelectJob }: JobQueueProps) {
                       </div>
                       {isExpanded ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
                     </button>
-                    
+
                     {isExpanded && (
                       <div className="pl-4 border-l-4 border-gray-100">
                         {group.jobs.map(job => renderJobItem(job))}
@@ -297,9 +298,14 @@ export function JobQueue({ jobs, onSelectJob }: JobQueueProps) {
         )}
       </div>
 
-      <AddJobModal 
-        isOpen={isAddModalOpen} 
-        onClose={() => setIsAddModalOpen(false)} 
+      {/* Scraping Stats */}
+      <div className="flex-shrink-0 border-t border-gray-200 p-3 bg-gray-900">
+        <ScrapingStats />
+      </div>
+
+      <AddJobModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
       />
     </div>
   );

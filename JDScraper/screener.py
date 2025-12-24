@@ -52,21 +52,70 @@ def quick_senior_keyword_check(title: str) -> bool:
     """
     if not title:
         return False
-    
+
     text = f"{title}".lower()
-    
+
     # Keywords that indicate senior positions (in title)
     senior_keywords = [
-        "senior", "sr.", "sr ", "lead", "principal", 
+        "senior", "sr.", "sr ", "lead", "principal",
         "chief", "director", "head of", "vp ", "vice president",
         "manager"
     ]
-    
+
     # Check if any keyword appears (case-insensitive)
     for keyword in senior_keywords:
         if keyword in text:
             return True
-    
+
+    return False
+
+def quick_visa_keyword_check(description: str) -> bool:
+    """
+    Quick keyword-based check for obvious visa blockers.
+    Returns True if should be rejected (has citizenship/clearance requirements), False otherwise.
+    """
+    if not description:
+        return False
+
+    text = description.lower()
+
+    # Keywords that indicate citizenship/clearance requirements
+    # These are strong signals that the job is not visa-friendly
+    visa_blocker_keywords = [
+        "us citizen only",
+        "u.s. citizen only",
+        "us citizenship required",
+        "u.s. citizenship required",
+        "must be a us citizen",
+        "must be a u.s. citizen",
+        "citizen of the united states",
+        "citizenship is required",
+        "green card only",
+        "permanent resident only",
+        "green card required",
+        "cannot sponsor",
+        "will not sponsor",
+        "no visa sponsorship",
+        "not eligible for visa sponsorship",
+        "security clearance required",
+        "secret clearance required",
+        "top secret clearance",
+        "ts/sci required",
+        "ts clearance required",
+        "sci clearance required",
+        "dod clearance required",
+        "active clearance required",
+        "public trust clearance",
+        "must obtain security clearance",
+        "ability to obtain security clearance required",
+        "clearance eligible",
+    ]
+
+    # Check if any keyword phrase appears (case-insensitive)
+    for keyword in visa_blocker_keywords:
+        if keyword in text:
+            return True
+
     return False
 
 def run_match_screener(description):
